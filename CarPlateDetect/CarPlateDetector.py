@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Created on 2016-11-27
 
@@ -9,6 +10,7 @@ Created on 2016-11-27
 
 import cv2
 import numpy as np
+import sys
 
 def filterRect(cnt):    
     rect = cv2.minAreaRect(cnt)  
@@ -19,55 +21,26 @@ def filterRect(cnt):
     w = rect[1][0]
     h = rect[1][1]
     
-    if h > 0 and w > 0 and  w * h > 1000:
+    if w > 0 and h > 0 and w * h > 1000:
         output = True
-        
+    
     return output
-
-def generate_seeds(centre, width, height):
-    minsize = int(min(width, height))
-    seed = [None] * 10
-    for i in range(10):
-        random_integer1 = np.random.randint(1000)
-        random_integer2 = np.random.randint(1000)
-        seed[i] = (centre[0] + random_integer1 % int(minsize / 2) - int(minsize / 2), centre[1] + random_integer2 % int(minsize / 2) - int(minsize / 2))
-    return seed
-
-def generate_mask(image, seed_point):
-    h = image.shape[0]
-    w = image.shape[1]
-    # OpenCV wants its mask to be exactly two pixels greater than the source image.
-    mask = np.zeros((h + 2, w + 2), np.uint8)
-    # We choose a color difference of (50,50,50). Thats a guess from my side.
-    lodiff = 50
-    updiff = 50
-    connectivity = 4
-    newmaskval = 255
-    flags = connectivity + (newmaskval << 8) + cv2.FLOODFILL_FIXED_RANGE + cv2.FLOODFILL_MASK_ONLY
-    cv2.floodFill(image, mask, seed_point, (255, 0, 0), (lodiff, lodiff, lodiff), (updiff, updiff, updiff), flags)
-    return mask
 
 if __name__ == '__main__':
 
-    img = cv2.imread("demo.jpg")
-#     img = cv2.imread("test.jpg")
-
-    cv2.imshow("OriImg", img)
+    if len(sys.argv) < 3:
+        print("Help: CardPlateDetector.exe 'path of inputImg.png'  'path of outputImg.png'")
+        sys.exit(2)
     
-#     lower = np.array([0, 0, 0])
-#     upper = np.array([255, 0, 0])
-#     color_msk = cv2.inRange(img, lower, upper)
-#     blueImg = cv2.bitwise_and(img, img, mask= color_msk)
-#     cv2.imshow("color_msk", blueImg)
-#     img_gray = cv2.cvtColor(blueImg, cv2.COLOR_RGB2GRAY)
+    inputImg = sys.argv[1]
+    outputImg = sys.argv[2]
+    
+    img = cv2.imread(inputImg)
     
     img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
-    # Noise removal with iterative bilateral filter(removes noise while preserving edges)
+    #remove noise
     noise_removal = cv2.bilateralFilter(img_gray, 8, 75, 75)
-    #cv2.imshow("noise_removal", noise_removal)
-    
-    #cv2.imshow("noise_removal1", noise_removal)
     
     # Histogram equalisation for better results
     equal_histogram = cv2.equalizeHist(noise_removal)
@@ -76,16 +49,23 @@ if __name__ == '__main__':
     
     # Thresholding the image
     ret, thresh_image = cv2.threshold(sobelx, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-    # cv2.imshow("Thresholding", thresh_image)
+        
+    element1 = cv2.getStructuringElement(cv2.MORPH_RECT, (30, 9))
+    element2 = cv2.getStructuringElement(cv2.MORPH_RECT, (24, 6))
+    element3 = cv2.getStructuringElement(cv2.MORPH_RECT, (23, 2))
     
-    element = cv2.getStructuringElement(cv2.MORPH_RECT, (23, 2))
-    closing = cv2.morphologyEx(thresh_image, cv2.MORPH_CLOSE, element)
-    # cv2.imshow("morphologyEx", closing)
+    dilation = cv2.dilate(thresh_image, element2, iterations=1)
+    erosion = cv2.erode(dilation, element1, iterations=1)
+    #cv2.imshow("dilation", erosion)
     
-    canny_image = cv2.Canny(closing, 60, 180, apertureSize=3)
+#     mor = cv2.morphologyEx(erosion, cv2.MORPH_OPEN, element3)
+#     cv2.imshow("morphologyEx1", closing)
+    mor = cv2.morphologyEx(erosion, cv2.MORPH_CLOSE, element3)
+#     cv2.imshow("morphologyEx2", closing)
+    
+    canny_image = cv2.Canny(mor, 60, 180, apertureSize=3)
     # cv2.imshow("Canny", canny_image)
     
-    # new, contours, _ = cv2.findContours(canny_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     new, contours, _ = cv2.findContours(canny_image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     
     contoursImg = None
@@ -98,17 +78,15 @@ if __name__ == '__main__':
         box = cv2.boxPoints(rect)
         box = np.int0(box)
         
-#         peri = cv2.arcLength(cnt, True)
-#         approx = cv2.approxPolyDP(cnt, 0.06 * peri, True)  # Approximating with 6% error
-        
-        if filterRect(box):    
+        if filterRect(cnt):    
             contoursImg = cv2.drawContours(plateMask, [box], 0, 255, -1,)
             contoursImg = cv2.bitwise_and(img, img, mask=plateMask)
-        else:
-            failedBox = cv2.drawContours(cpImg, [box], 0, (0, 128, 255), 2,)
+#         else:
+#             failedBox = cv2.drawContours(cpImg, [box], 0, (0, 128, 255), 2,)
         
-    cv2.imshow("failedBox", failedBox)
+    #cv2.imshow("failedBox", failedBox)
     if contoursImg is not None:
-        cv2.imshow("final_img", contoursImg)
+        #contoursImg = cv2.cvtColor(contoursImg, cv2.COLOR_BGR2BGRA)
+        cv2.imwrite(outputImg, contoursImg)
     
-    cv2.waitKey()  # Wait for a keystroke from the user
+    cv2.waitKey()
