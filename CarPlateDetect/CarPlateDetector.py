@@ -90,6 +90,7 @@ if __name__ == '__main__':
         
         h, w = img.shape[:2]
         a = np.full((h, w, 1), 255, np.uint8)
+        a = cv2.bitwise_and(a, a, mask=plateMask)
         b, g, r = cv2.split(finalImg)
         bgra = [b, g, r, a]
         finalImg = cv2.merge(bgra, 4)
