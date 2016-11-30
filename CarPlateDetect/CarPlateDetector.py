@@ -4,8 +4,6 @@ Created on 2016-11-27
 
 @author: ponghao
 
-@reference:  http://nbviewer.jupyter.org/gist/kislayabhi/89b985e5b78a6f56029a
-                    http://img.blog.csdn.net/20140303214059234
 '''
 
 import cv2
@@ -72,7 +70,7 @@ if __name__ == '__main__':
     failedBox = None
     plateMask = np.zeros(img_gray.shape, np.uint8)
     cpImg = img.copy()
-    
+
     for cnt in contours:
         rect = cv2.minAreaRect(cnt)
         box = cv2.boxPoints(rect)
@@ -80,13 +78,22 @@ if __name__ == '__main__':
         
         if filterRect(cnt):    
             contoursImg = cv2.drawContours(plateMask, [box], 0, 255, -1,)
-            contoursImg = cv2.bitwise_and(img, img, mask=plateMask)
-#         else:
-#             failedBox = cv2.drawContours(cpImg, [box], 0, (0, 128, 255), 2,)
-        
-    #cv2.imshow("failedBox", failedBox)
+    
+    
+    contoursImg = cv2.bitwise_and(img, img, mask=plateMask)
+
     if contoursImg is not None:
-        #contoursImg = cv2.cvtColor(contoursImg, cv2.COLOR_BGR2BGRA)
-        cv2.imwrite(outputImg, contoursImg)
+        invertMask = cv2.bitwise_not(plateMask)     
+        bg = np.full(img.shape, 255, np.uint8)
+        bg = cv2.bitwise_and(bg, bg, mask=invertMask)
+        finalImg = cv2.bitwise_or(contoursImg, bg)
+        
+        h, w = img.shape[:2]
+        a = np.full((h, w, 1), 255, np.uint8)
+        b, g, r = cv2.split(finalImg)
+        bgra = [b, g, r, a]
+        finalImg = cv2.merge(bgra, 4)
+        cv2.imwrite(outputImg, finalImg)
     
     cv2.waitKey()
+    
