@@ -15,7 +15,7 @@ import cv2
 
 import numpy as np
 
-enableOutput = True
+enableOutput = False
 outputPath = "E:/test/"
 
 def filterRect(cnt):    
@@ -35,7 +35,7 @@ def filterRect(cnt):
        
     if w > 0 and h > 0 and abs(int(0-angle)) < 5: 
         area = w * h
-        if w / h > 1.2 and w / h < 4.5 and area > 1000 and area < 80000:
+        if w / h > 1.2 and w / h < 4.5 and area > 500 and area < 80000:
 #             print("angle", angle)
             output = True
     
@@ -98,10 +98,7 @@ def flood_fill_color(img, rects):
 #                     outConImg = cv2.drawContours(outConImg, [box], 0, color, 1)
                 #mask = cv2.bitwise_and(mask, mask, mask=tmpMsk)
                 mask_list.append(mask)
-      
-    if enableOutput:
-        cv2.imwrite("%s/8-outConImg.png" % outputPath, outConImg)
-                               
+                                     
     print("mask_list = ", len(mask_list))
  
     final_masklist = []
@@ -194,7 +191,8 @@ if __name__ == '__main__':
         cv2.imwrite("%s/7-contoursImg.png" % outputPath, contoursImg)
     
 #     final_masklist = flood_fill_color(imgRGBA.copy(), validateRect)
-
+    if enableOutput:
+        cv2.imwrite("%s/8-outConImg.png" % outputPath, outConImg)
     h, w = imgRGBA.shape[:2]
     imgA8 = np.full((h, w, 1), 255, np.uint8)
     imgA8 = cv2.bitwise_and(imgA8, imgA8, mask=plateMask)
