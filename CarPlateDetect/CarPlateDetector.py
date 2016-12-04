@@ -4,14 +4,25 @@ Created on 2016-11-27
 
 @author: ponghao
 
+http://blog.csdn.net/jinshengtao/article/details/17883075/#
+http://nbviewer.jupyter.org/gist/kislayabhi/89b985e5b78a6f56029a
+http://blog.csdn.net/poem_qianmo/article/details/28261997
 '''
 
-import cv2
-import numpy as np
 import sys
 
-def filterRect(box):    
+import cv2
 
+import numpy as np
+
+enableOutput = True
+outputPath = "E:/test/"
+
+def filterRect(cnt):    
+    rect=cv2.minAreaRect(cnt)  
+    box=cv2.boxPoints(rect) 
+    box=np.int0(box)  
+    
     output = False
 
     w = rect[1][0]
@@ -28,36 +39,11 @@ def filterRect(box):
     
     return output
 
-def generate_seeds(center, width, height):
-    minsize = int(min(width, height))
-    minsize = int(minsize - minsize * 0.7)
-    
-    seed = [None] * 5
-    for i in range(5):
-        random_integer1 = np.random.randint(1000)
-        random_integer2 = np.random.randint(1000)
-        seed[i] = (center[0] + random_integer1 % int(minsize / 2) - int(minsize / 2), center[1] + random_integer2 % int(minsize / 2) - int(minsize / 2))
-    return seed
-
-def generate_mask(image, seed_point):
-    h = image.shape[0]
-    w = image.shape[1]
-    # OpenCV wants its mask to be exactly two pixels greater than the source image.
-    mask = np.zeros((h + 2, w + 2), np.uint8)
-    # We choose a color difference of (50,50,50). Thats a guess from my side.
-    lodiff = 50
-    updiff = 50
-    connectivity = 4
-    newmaskval = 255
-    flags = connectivity + (newmaskval << 8) + cv2.FLOODFILL_FIXED_RANGE + cv2.FLOODFILL_MASK_ONLY
-    _ = cv2.floodFill(image, mask, seed_point, (255, 0, 0), (lodiff, lodiff, lodiff), (updiff, updiff, updiff), flags)
-    return mask
-
 def rmsdiff(im1, im2):
-    diff=im1-im2
-    output=False
-    if np.sum(abs(diff))/float(min(np.sum(im1), np.sum(im2)))<0.3:
-        output=True
+    diff = im1 - im2
+    output = False
+    if np.sum(abs(diff)) / float(min(np.sum(im1), np.sum(im2))) < 0.1:
+        output = True
     return output
 
 if __name__ == '__main__':
@@ -72,82 +58,125 @@ if __name__ == '__main__':
     imgRGBA = cv2.imread(inputImg)
 
     imgGray = cv2.cvtColor(imgRGBA, cv2.COLOR_RGB2GRAY)
-
-    imgBlur = cv2.blur(imgGray, (5, 5))
-
-    equal_histogram = cv2.equalizeHist(imgBlur)
+    if enableOutput:
+        cv2.imwrite("%s/1-imgGray.png" % outputPath, imgGray)
     
-    sobelx = cv2.Sobel(equal_histogram, cv2.CV_8U, 1, 0, ksize=3)
-    
+    noise_removal = cv2.bilateralFilter(imgGray, -1, 50, 50)
+    if enableOutput:
+        cv2.imwrite("%s/2-noise_removal.png" % outputPath, noise_removal)
+                
+#     equal_histogram = cv2.equalizeHist(noise_removal)
+#     if enableOutput:
+#         cv2.imwrite("%s/3-equal_histogram.png" % outputPath, equal_histogram)
+        
+    sobelx = cv2.Sobel(noise_removal, cv2.CV_8U, 1, 0, ksize=3)
+    if enableOutput:
+        cv2.imwrite("%s/4-sobelx.png" % outputPath, sobelx)
+        
     ret, thresh_image = cv2.threshold(sobelx, 0, 255, cv2.THRESH_OTSU + cv2.THRESH_BINARY)
-
+    if enableOutput:
+        cv2.imwrite("%s/5-thresh_image.png" % outputPath, thresh_image)
+        
     element = cv2.getStructuringElement(cv2.MORPH_RECT, (17, 3))
     mor = cv2.morphologyEx(thresh_image, cv2.MORPH_CLOSE, element)
-        
-    new, contours, _ = cv2.findContours(mor, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     
+    if enableOutput:
+        cv2.imwrite("%s/6-mor.png" % outputPath, mor)
+    
+    new, contours, _ = cv2.findContours(mor, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     contoursImg = None
     plateMask = np.zeros(imgGray.shape, np.uint8)
 
+    if enableOutput:
+        outConImg = imgRGBA.copy()
     validateRect = []
     for cnt in contours:
         rect = cv2.minAreaRect(cnt)
         box = cv2.boxPoints(rect)
         box = np.int0(box)
-        if filterRect(box):
+        
+        color = (0, 0, 255)
+        if filterRect(cnt):
+            color = (0, 255, 0)
             contoursImg = cv2.drawContours(plateMask, [box], 0, 255, -1)
             validateRect.append(rect)
+        
+        if enableOutput:
+            outConImg = cv2.drawContours(outConImg, [box], 0, color, 2)
     contoursImg = cv2.bitwise_and(imgRGBA, imgRGBA, mask=plateMask)
-
-    print("validateRect = ", len(validateRect))
+    if enableOutput:
+        cv2.imwrite("%s/7-outConImg.png" % outputPath, outConImg)
+        cv2.imwrite("%s/7-1contoursImg.png" % outputPath, contoursImg)
     
+    print("validateRect = ", len(validateRect))
+
     mask_list = []
     imgRGBAMask = imgRGBA.copy()
     for rect in validateRect:
         center = (int(rect[0][0]), int(rect[0][1]))
         w = rect[1][0]
         h = rect[1][0]
-        seeds = generate_seeds(center, w, h)
+  
+        cv2.circle(imgRGBA, center, 1, (0, 255, 0), -1)
+        minsize = int(min(w, h))
+        minsize = int(minsize * 0.3)
          
-        for seed in seeds:
+        mskH = imgRGBAMask.shape[0]
+        mskW = imgRGBAMask.shape[1]
+        mask = np.zeros((mskH + 2, mskW + 2), np.uint8)
+        lodiff = 50
+        updiff = 50
+        connectivity = 8
+        newMaskVal = 255
+        numSeeds = 8
+        flags = connectivity | cv2.FLOODFILL_MASK_ONLY | cv2.FLOODFILL_FIXED_RANGE |  (newMaskVal << 8)
+        for i in range(numSeeds):
+            x = center[0] + np.random.randint(1000) % minsize - int(minsize / 2)
+            y = center[1] + np.random.randint(1000) % minsize - int(minsize / 2)
+            seed = (x, y)
             cv2.circle(imgRGBA, seed, 1, (0, 0, 255), -1)
-            msk = generate_mask(imgRGBAMask, seed)
- 
-            contour = np.argwhere(msk.transpose()== 255)
-            rect = cv2.minAreaRect(contour)
-            box = cv2.boxPoints(rect)
-            box = np.int0(box)
-            if filterRect(box):
-                mask_list.append(msk)
-             
+            try:
+                fillRect = cv2.floodFill(imgRGBAMask, mask, seed, (255, 0, 0), (lodiff, lodiff, lodiff), (updiff, updiff, updiff), flags)
+            except:
+                pass
+                #print("minsize = %d, x = %d, y = %d" % (minsize, x, y))
+            
+            trspose = mask.transpose()
+            contours = np.argwhere(trspose == 255)
+            for cnt in [contours]:
+                if filterRect(cnt):
+                    mask_list.append(mask)
+               
     print("mask_list = ", len(mask_list))
-
-    final_masklist=[]
-    index=[]
-    for i in range(len(mask_list)-1):
-        for j in range(i+1, len(mask_list)):
+    if enableOutput:
+        cv2.imwrite("%s/8-floodfill.png" % outputPath, imgRGBA)
+       
+    final_masklist = []
+    index = []
+    for i in range(len(mask_list) - 1):
+        for j in range(i + 1, len(mask_list)):
             if rmsdiff(mask_list[i], mask_list[j]):
                 index.append(j)
-                 
-    for mask_no in list(set(range(len(mask_list)))-set(index)):
+                
+#     for i in range(len(mask_list)):
+#         hasSameMsk = False
+#         for j in range(i + 1, len(mask_list)):
+#             if rmsdiff(mask_list[i], mask_list[j]):
+                
+            
+    for mask_no in list(set(range(len(mask_list))) - set(index)):
         final_masklist.append(mask_list[mask_no])
-         
+             
     print("final_masklist = ", len(final_masklist))
-    
+ 
     mskIdx = 0
     idx = outputImg.find(".png")
     subName = outputImg[:idx]
     for msk in final_masklist:
-        outputImg = subName +  "%d.png" % mskIdx
-        cv2.imwrite(outputImg, msk)
+        if enableOutput:
+            out = "%s/final_msk_%d.png" % (outputPath, mskIdx)
+            cv2.imwrite(out, msk)
         mskIdx += 1
-#     plateMask = np.zeros(imgGray.shape, np.uint8)
-#     for msk in final_masklist:
-#         contour=np.argwhere(msk.transpose()==255)
-#         rect=cv2.minAreaRect(contour)
-#         box = cv2.boxPoints(rect)
-#         box = np.int0(box)
-#         plateMask = final_masklist[i]
 
     h, w = imgRGBA.shape[:2]
     imgA8 = np.full((h, w, 1), 255, np.uint8)
