@@ -53,6 +53,9 @@ def flood_fill_color(img, rects, debugOut = None):
 
     mskH = img.shape[0] + 2
     mskW = img.shape[1] + 2
+    
+    final_mask = np.zeros((mskH, mskW), np.uint8)
+     
     tmpMsk = plateMask.copy()
     tmpMsk = cv2.resize(tmpMsk, (mskW, mskH))
 #     if enableOutput:
@@ -94,6 +97,7 @@ def flood_fill_color(img, rects, debugOut = None):
             box = np.int0(box)
  
             if filterRect(contours):
+                cv2.drawContours(final_mask, [box], 0, 255, -1)
                 if enableOutput:
                     color = (0,255, 255)
                     debugOut = cv2.drawContours(debugOut, [box], 0, color, 1)
@@ -102,40 +106,40 @@ def flood_fill_color(img, rects, debugOut = None):
 #                     color = (255, 0, 0)
 #                     outConImg = cv2.drawContours(outConImg, [box], 0, color, 1)
                 #mask = cv2.bitwise_and(mask, mask, mask=tmpMsk)
-                mask_list.append(mask)
+#                 mask_list.append(mask)
      
-    if enableOutput:                        
-        print("mask_list = ", len(mask_list))
- 
-    final_masklist = []
-    index = []
-    for i in range(len(mask_list) - 1):
-        for j in range(i + 1, len(mask_list)):
-            if rmsdiff(mask_list[i], mask_list[j]):
-                index.append(j)
-
-    for mask_no in list(set(range(len(mask_list))) - set(index)):
-        final_masklist.append(mask_list[mask_no])
-
-    if enableOutput:     
-        print("final_masklist = ", len(final_masklist))
-  
-
-    mskIdx = 0
-    final_mask = np.zeros((mskH, mskW), np.uint8)
-    for msk in final_masklist:
-        #msk = cv2.bitwise_and(msk, tmpMsk)
-        final_mask = cv2.bitwise_or(final_mask, msk)
-        
-        if enableOutput:
-            out = "%s/final_msk_%d.png" % (outputPath, mskIdx)
-            cv2.imwrite(out, msk)
-
-        mskIdx += 1
-    
-    if enableOutput:
-        out = "%s/final_mask.png" % (outputPath)
-        cv2.imwrite(out, final_mask)
+#     if enableOutput:                        
+#         print("mask_list = ", len(mask_list))
+#  
+#     final_masklist = []
+#     index = []
+#     for i in range(len(mask_list) - 1):
+#         for j in range(i + 1, len(mask_list)):
+#             if rmsdiff(mask_list[i], mask_list[j]):
+#                 index.append(j)
+# 
+#     for mask_no in list(set(range(len(mask_list))) - set(index)):
+#         final_masklist.append(mask_list[mask_no])
+# 
+#     if enableOutput:     
+#         print("final_masklist = ", len(final_masklist))
+#   
+# 
+#     mskIdx = 0
+#     final_mask = np.zeros((mskH, mskW), np.uint8)
+#     for msk in final_masklist:
+#         #msk = cv2.bitwise_and(msk, tmpMsk)
+#         final_mask = cv2.bitwise_or(final_mask, msk)
+#         
+#         if enableOutput:
+#             out = "%s/final_msk_%d.png" % (outputPath, mskIdx)
+#             cv2.imwrite(out, msk)
+# 
+#         mskIdx += 1
+#     
+#     if enableOutput:
+#         out = "%s/final_mask.png" % (outputPath)
+#         cv2.imwrite(out, final_mask)
             
     return final_mask
 
