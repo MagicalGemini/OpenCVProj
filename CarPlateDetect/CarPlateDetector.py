@@ -15,7 +15,7 @@ import cv2
 
 import numpy as np
 
-enableOutput = True
+enableOutput = False
 outputPath = "E:/test/"
 
 def filterRect(cnt):    
