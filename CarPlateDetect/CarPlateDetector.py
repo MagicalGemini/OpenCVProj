@@ -33,7 +33,7 @@ def filterRect(cnt):
         h = rect[1][0]
         angle += 90
        
-    if w > 0 and h > 0 and abs(int(0-angle)) < 5: 
+    if w > 0 and h > 0 and abs(int(0-angle)) < 10: 
         area = w * h
         if w / h > 1.2 and w / h < 4.5 and area > 500 and area < 80000:
 #             print("angle", angle)
@@ -124,7 +124,7 @@ def flood_fill_color(img, rects, debugOut = None):
     mskIdx = 0
     final_mask = np.zeros((mskH, mskW), np.uint8)
     for msk in final_masklist:
-        msk = cv2.bitwise_and(msk, tmpMsk)
+        #msk = cv2.bitwise_and(msk, tmpMsk)
         final_mask = cv2.bitwise_or(final_mask, msk)
         
         if enableOutput:
