@@ -15,7 +15,7 @@ import cv2
 
 import numpy as np
 
-enableOutput = False
+enableOutput = True
 outputPath = "E:/test/"
 
 def filterRect(cnt):    
@@ -33,9 +33,9 @@ def filterRect(cnt):
         h = rect[1][0]
         angle += 90
        
-    if w > 0 and h > 0 and abs(int(0-angle)) < 10: 
+    if w > 0 and h > 0 and abs(int(0-angle)) < 5: 
         area = w * h
-        if w / h > 1.2 and w / h < 5 and area > 1000 and area < 80000:
+        if w / h > 1.2 and w / h < 4.5 and area > 1000 and area < 80000:
 #             print("angle", angle)
             output = True
     
@@ -47,6 +47,88 @@ def rmsdiff(im1, im2):
     if np.sum(abs(diff)) / float(min(np.sum(im1), np.sum(im2))) < 0.1:
         output = True
     return output
+
+def flood_fill_color(img, rects):
+    mask_list = []
+
+    mskH = img.shape[0] + 2
+    mskW = img.shape[1] + 2
+#     tmpMsk = plateMask.copy()
+#     tmpMsk = cv2.resize(tmpMsk, (mskW, mskH))
+#     if enableOutput:
+#         cv2.imwrite("%s/tmpMsk.png" % outputPath, tmpMsk)
+    for rect in rects:
+        center = (int(rect[0][0]), int(rect[0][1]))
+        w = rect[1][0]
+        h = rect[1][0]
+   
+        cv2.circle(outConImg, center, 1, (0, 255, 0), -1)
+        minsize = int(min(w, h))
+        minsize = int(minsize * 0.3)        
+        mask = np.zeros((mskH, mskW), np.uint8)
+         
+        lodiff = 50
+        updiff = 50
+        connectivity = 8
+        newMaskVal = 255
+        numSeeds = 5
+        flags = connectivity | cv2.FLOODFILL_MASK_ONLY | cv2.FLOODFILL_FIXED_RANGE |  (newMaskVal << 8)
+        for i in range(numSeeds):
+            x = center[0] + np.random.randint(1000) % minsize - int(minsize / 2)
+            y = center[1] + np.random.randint(1000) % minsize - int(minsize / 2)
+            seed = (x, y)
+            cv2.circle(outConImg, seed, 1, (0, 0, 255), -1)
+            try:
+                fillRect = cv2.floodFill(img, mask, seed, (255, 0, 0), (lodiff, lodiff, lodiff), (updiff, updiff, updiff), flags)
+            except:
+                pass
+             
+            contours = np.argwhere(mask.transpose() == 255)
+            rect = cv2.minAreaRect(contours)
+            box = cv2.boxPoints(rect)
+            box = np.int0(box)
+ 
+            if filterRect(contours):
+                if enableOutput:
+                    color = (0,255, 255)
+                    outConImg = cv2.drawContours(outConImg, [box], 0, color, 1)
+#             else:
+#                 if enableOutput:
+#                     color = (255, 0, 0)
+#                     outConImg = cv2.drawContours(outConImg, [box], 0, color, 1)
+                #mask = cv2.bitwise_and(mask, mask, mask=tmpMsk)
+                mask_list.append(mask)
+      
+    if enableOutput:
+        cv2.imwrite("%s/8-outConImg.png" % outputPath, outConImg)
+                               
+    print("mask_list = ", len(mask_list))
+ 
+    final_masklist = []
+    index = []
+    for i in range(len(mask_list) - 1):
+        for j in range(i + 1, len(mask_list)):
+            if rmsdiff(mask_list[i], mask_list[j]):
+                index.append(j)
+
+    for mask_no in list(set(range(len(mask_list))) - set(index)):
+        final_masklist.append(mask_list[mask_no])
+              
+    print("final_masklist = ", len(final_masklist))
+  
+    return final_masklist
+#     mskIdx = 0
+#     idx = outputImg.find(".png")
+#     subName = outputImg[:idx]
+#     for msk in final_masklist:
+#         if enableOutput:
+#             out = "%s/final_msk_%d.png" % (outputPath, mskIdx)
+#             cv2.imwrite(out, msk)
+#              
+#             #mask = cv2.bitwise_or(mask, tmpMsk)
+#             out = "%s/final_and_msk_%d.png" % (outputPath, mskIdx)
+#             cv2.imwrite(out, msk)
+#         mskIdx += 1
 
 if __name__ == '__main__':
 
@@ -63,7 +145,7 @@ if __name__ == '__main__':
     if enableOutput:
         cv2.imwrite("%s/1-imgGray.png" % outputPath, imgGray)
     
-    noise_removal = cv2.bilateralFilter(imgGray, -1, 50, 50)
+    noise_removal = cv2.bilateralFilter(imgGray, 5, 50, 50)
     if enableOutput:
         cv2.imwrite("%s/2-noise_removal.png" % outputPath, noise_removal)
                 
@@ -111,93 +193,7 @@ if __name__ == '__main__':
     if enableOutput:
         cv2.imwrite("%s/7-contoursImg.png" % outputPath, contoursImg)
     
-#     print("validateRect = ", len(validateRect))
-#
-#     mask_list = []
-#     imgRGBAMask = imgRGBA.copy()
-#     mskH = imgRGBAMask.shape[0] + 2
-#     mskW = imgRGBAMask.shape[1] + 2
-#     tmpMsk = plateMask.copy()
-#     tmpMsk = cv2.resize(tmpMsk, (mskW, mskH))
-#     if enableOutput:
-#         cv2.imwrite("%s/tmpMsk.png" % outputPath, tmpMsk)
-#     for rect in validateRect:
-#         center = (int(rect[0][0]), int(rect[0][1]))
-#         w = rect[1][0]
-#         h = rect[1][0]
-#   
-#         cv2.circle(outConImg, center, 1, (0, 255, 0), -1)
-#         minsize = int(min(w, h))
-#         minsize = int(minsize * 0.3)        
-#         mask = np.zeros((mskH, mskW), np.uint8)
-#         
-#         lodiff = 50
-#         updiff = 50
-#         connectivity = 8
-#         newMaskVal = 255
-#         numSeeds = 5
-#         flags = connectivity | cv2.FLOODFILL_MASK_ONLY | cv2.FLOODFILL_FIXED_RANGE |  (newMaskVal << 8)
-#         for i in range(numSeeds):
-#             x = center[0] + np.random.randint(1000) % minsize - int(minsize / 2)
-#             y = center[1] + np.random.randint(1000) % minsize - int(minsize / 2)
-#             seed = (x, y)
-#             cv2.circle(outConImg, seed, 1, (0, 0, 255), -1)
-#             try:
-#                 fillRect = cv2.floodFill(imgRGBAMask, mask, seed, (255, 0, 0), (lodiff, lodiff, lodiff), (updiff, updiff, updiff), flags)
-#             except:
-#                 pass
-#             
-#             contours = np.argwhere(mask.transpose() == 255)
-#             rect = cv2.minAreaRect(contours)
-#             box = cv2.boxPoints(rect)
-#             box = np.int0(box)
-# 
-#             if filterRect(contours):
-#                 if enableOutput:
-#                     color = (0,255, 255)
-#                     outConImg = cv2.drawContours(outConImg, [box], 0, color, 1)
-# #             else:
-# #                 if enableOutput:
-# #                     color = (255, 0, 0)
-# #                     outConImg = cv2.drawContours(outConImg, [box], 0, color, 1)
-#                 #mask = cv2.bitwise_and(mask, mask, mask=tmpMsk)
-#                 mask_list.append(mask)
-#      
-#     if enableOutput:
-#         cv2.imwrite("%s/8-outConImg.png" % outputPath, outConImg)
-#                               
-#     print("mask_list = ", len(mask_list))
-# 
-#     final_masklist = []
-#     index = []
-#     for i in range(len(mask_list) - 1):
-#         for j in range(i + 1, len(mask_list)):
-#             if rmsdiff(mask_list[i], mask_list[j]):
-#                 index.append(j)
-#                 
-# #     for i in range(len(mask_list)):
-# #         hasSameMsk = False
-# #         for j in range(i + 1, len(mask_list)):
-# #             if rmsdiff(mask_list[i], mask_list[j]):
-#                 
-#             
-#     for mask_no in list(set(range(len(mask_list))) - set(index)):
-#         final_masklist.append(mask_list[mask_no])
-#              
-#     print("final_masklist = ", len(final_masklist))
-#  
-#     mskIdx = 0
-#     idx = outputImg.find(".png")
-#     subName = outputImg[:idx]
-#     for msk in final_masklist:
-#         if enableOutput:
-#             out = "%s/final_msk_%d.png" % (outputPath, mskIdx)
-#             cv2.imwrite(out, msk)
-#             
-#             #mask = cv2.bitwise_or(mask, tmpMsk)
-#             out = "%s/final_and_msk_%d.png" % (outputPath, mskIdx)
-#             cv2.imwrite(out, msk)
-#         mskIdx += 1
+#     final_masklist = flood_fill_color(imgRGBA.copy(), validateRect)
 
     h, w = imgRGBA.shape[:2]
     imgA8 = np.full((h, w, 1), 255, np.uint8)
