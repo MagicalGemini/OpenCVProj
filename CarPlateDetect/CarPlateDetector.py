@@ -66,9 +66,9 @@ def flood_fill_color(img, rects, debugOut = None):
          
         lodiff = 50
         updiff = 50
-        connectivity = 4
+        connectivity = 8
         newMaskVal = 255
-        numSeeds = 8
+        numSeeds = 10
         flags = connectivity | cv2.FLOODFILL_MASK_ONLY | cv2.FLOODFILL_FIXED_RANGE |  (newMaskVal << 8)
         for i in range(numSeeds):
             x = center[0] + np.random.randint(1000) % minsize - int(minsize / 2)
@@ -111,7 +111,7 @@ if __name__ == '__main__':
     if enableOutput:
         cv2.imwrite("%s/1-imgGray.png" % outputPath, imgGray)
     
-    noise_removal = cv2.bilateralFilter(imgGray, 10, 50, 50)
+    noise_removal = cv2.bilateralFilter(imgGray, 5, 50, 50)
     if enableOutput:
         cv2.imwrite("%s/2-noise_removal.png" % outputPath, noise_removal)
 
