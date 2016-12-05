@@ -4,9 +4,6 @@ Created on 2016-11-27
 
 @author: ponghao
 
-http://blog.csdn.net/jinshengtao/article/details/17883075/#
-http://nbviewer.jupyter.org/gist/kislayabhi/89b985e5b78a6f56029a
-http://blog.csdn.net/poem_qianmo/article/details/28261997
 '''
 
 import sys
@@ -35,7 +32,7 @@ def filterRect(cnt):
        
     if w > 0 and h > 0 and abs(int(0-angle)) < 10: 
         area = w * h
-        if w / h > 1.2 and w / h < 4.5 and area > 500 and area < 80000:
+        if w / h > 1.2 and w / h < 5 and area > 500 and area < 80000:
 #             print("angle", angle)
             output = True
     
@@ -49,17 +46,12 @@ def rmsdiff(im1, im2):
     return output
 
 def flood_fill_color(img, rects, debugOut = None):
-    mask_list = []
 
     mskH = img.shape[0] + 2
     mskW = img.shape[1] + 2
     
     final_mask = np.zeros((mskH, mskW), np.uint8)
      
-    tmpMsk = plateMask.copy()
-    tmpMsk = cv2.resize(tmpMsk, (mskW, mskH))
-#     if enableOutput:
-#         cv2.imwrite("%s/tmpMsk.png" % outputPath, tmpMsk)
     for rect in rects:
         center = (int(rect[0][0]), int(rect[0][1]))
         w = rect[1][0]
@@ -87,7 +79,7 @@ def flood_fill_color(img, rects, debugOut = None):
                 cv2.circle(debugOut, seed, 1, (0, 0, 255), -1)
                 
             try:
-                fillRect = cv2.floodFill(img, mask, seed, (255, 0, 0), (lodiff, lodiff, lodiff), (updiff, updiff, updiff), flags)
+                cv2.floodFill(img, mask, seed, (255, 0, 0), (lodiff, lodiff, lodiff), (updiff, updiff, updiff), flags)
             except:
                 pass
              
@@ -101,46 +93,7 @@ def flood_fill_color(img, rects, debugOut = None):
                 if enableOutput:
                     color = (0,255, 255)
                     debugOut = cv2.drawContours(debugOut, [box], 0, color, 1)
-#             else:
-#                 if enableOutput:
-#                     color = (255, 0, 0)
-#                     outConImg = cv2.drawContours(outConImg, [box], 0, color, 1)
-                #mask = cv2.bitwise_and(mask, mask, mask=tmpMsk)
-#                 mask_list.append(mask)
-     
-#     if enableOutput:                        
-#         print("mask_list = ", len(mask_list))
-#  
-#     final_masklist = []
-#     index = []
-#     for i in range(len(mask_list) - 1):
-#         for j in range(i + 1, len(mask_list)):
-#             if rmsdiff(mask_list[i], mask_list[j]):
-#                 index.append(j)
-# 
-#     for mask_no in list(set(range(len(mask_list))) - set(index)):
-#         final_masklist.append(mask_list[mask_no])
-# 
-#     if enableOutput:     
-#         print("final_masklist = ", len(final_masklist))
-#   
-# 
-#     mskIdx = 0
-#     final_mask = np.zeros((mskH, mskW), np.uint8)
-#     for msk in final_masklist:
-#         #msk = cv2.bitwise_and(msk, tmpMsk)
-#         final_mask = cv2.bitwise_or(final_mask, msk)
-#         
-#         if enableOutput:
-#             out = "%s/final_msk_%d.png" % (outputPath, mskIdx)
-#             cv2.imwrite(out, msk)
-# 
-#         mskIdx += 1
-#     
-#     if enableOutput:
-#         out = "%s/final_mask.png" % (outputPath)
-#         cv2.imwrite(out, final_mask)
-            
+  
     return final_mask
 
 if __name__ == '__main__':
@@ -158,14 +111,10 @@ if __name__ == '__main__':
     if enableOutput:
         cv2.imwrite("%s/1-imgGray.png" % outputPath, imgGray)
     
-    noise_removal = cv2.bilateralFilter(imgGray, 5, 50, 50)
+    noise_removal = cv2.bilateralFilter(imgGray, 10, 50, 50)
     if enableOutput:
         cv2.imwrite("%s/2-noise_removal.png" % outputPath, noise_removal)
-                
-#     equal_histogram = cv2.equalizeHist(noise_removal)
-#     if enableOutput:
-#         cv2.imwrite("%s/3-equal_histogram.png" % outputPath, equal_histogram)
-        
+
     sobelx = cv2.Sobel(noise_removal, cv2.CV_8U, 1, 0, ksize=3)
     if enableOutput:
         cv2.imwrite("%s/4-sobelx.png" % outputPath, sobelx)
@@ -176,7 +125,6 @@ if __name__ == '__main__':
         
     element = cv2.getStructuringElement(cv2.MORPH_RECT, (17, 3))
     mor = cv2.morphologyEx(thresh_image, cv2.MORPH_CLOSE, element)
-    
     if enableOutput:
         cv2.imwrite("%s/6-mor.png" % outputPath, mor)
     
@@ -186,9 +134,10 @@ if __name__ == '__main__':
     plateMask = np.zeros(imgGray.shape, np.uint8)
 
     outConImg = None
+    validateRect = []
     if enableOutput:
         outConImg = imgRGBA.copy()
-    validateRect = []
+        
     for cnt in contours:
         rect = cv2.minAreaRect(cnt)
         box = cv2.boxPoints(rect)
