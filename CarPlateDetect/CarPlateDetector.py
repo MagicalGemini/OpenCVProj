@@ -4,6 +4,9 @@ Created on 2016-11-27
 
 @author: ponghao
 
+http://blog.csdn.net/jinshengtao/article/details/17883075/#
+http://nbviewer.jupyter.org/gist/kislayabhi/89b985e5b78a6f56029a
+http://blog.csdn.net/poem_qianmo/article/details/28261997
 '''
 
 import sys
@@ -12,13 +15,14 @@ import cv2
 
 import numpy as np
 
+
 enableOutput = False
 outputPath = "E:/test/"
 
 def filterRect(cnt):    
-    rect=cv2.minAreaRect(cnt)  
-    box=cv2.boxPoints(rect) 
-    box=np.int0(box)  
+    rect = cv2.minAreaRect(cnt)  
+    box = cv2.boxPoints(rect) 
+    box = np.int0(box)  
     angle = rect[2]
     output = False
 
@@ -30,7 +34,7 @@ def filterRect(cnt):
         h = rect[1][0]
         angle += 90
        
-    if w > 0 and h > 0 and abs(int(0-angle)) < 10: 
+    if w > 0 and h > 0 and abs(int(0 - angle)) < 10: 
         area = w * h
         if w / h > 1.2 and w / h < 5 and area > 500 and area < 80000:
 #             print("angle", angle)
@@ -45,7 +49,7 @@ def rmsdiff(im1, im2):
         output = True
     return output
 
-def flood_fill_color(img, rects, debugOut = None):
+def flood_fill_color(img, rects, debugOut=None):
 
     mskH = img.shape[0] + 2
     mskW = img.shape[1] + 2
@@ -61,28 +65,28 @@ def flood_fill_color(img, rects, debugOut = None):
             cv2.circle(debugOut, center, 1, (0, 255, 0), -1)
             
         minsize = int(min(w, h))
-        minsize = int(minsize * 0.2)        
+        minsize = int(minsize * 0.2)
         mask = np.zeros((mskH, mskW), np.uint8)
-         
+        
         lodiff = 50
         updiff = 50
         connectivity = 8
         newMaskVal = 255
         numSeeds = 10
-        flags = connectivity | cv2.FLOODFILL_MASK_ONLY | cv2.FLOODFILL_FIXED_RANGE |  (newMaskVal << 8)
+        flags = connectivity | cv2.FLOODFILL_MASK_ONLY | cv2.FLOODFILL_FIXED_RANGE | (newMaskVal << 8)
         for i in range(numSeeds):
             x = center[0] + np.random.randint(1000) % minsize - int(minsize / 2)
             y = center[1] + np.random.randint(1000) % minsize - int(minsize / 2)
             seed = (x, y)
-            
-            if enableOutput:
-                cv2.circle(debugOut, seed, 1, (0, 0, 255), -1)
                 
             try:
                 cv2.floodFill(img, mask, seed, (255, 0, 0), (lodiff, lodiff, lodiff), (updiff, updiff, updiff), flags)
+                if enableOutput:
+                    cv2.circle(debugOut, seed, 1, (0, 0, 255), -1)
+
             except:
                 pass
-             
+        
             contours = np.argwhere(mask.transpose() == 255)
             rect = cv2.minAreaRect(contours)
             box = cv2.boxPoints(rect)
@@ -91,7 +95,7 @@ def flood_fill_color(img, rects, debugOut = None):
             if filterRect(contours):
                 cv2.drawContours(final_mask, [box], 0, 255, -1)
                 if enableOutput:
-                    color = (0,255, 255)
+                    color = (0, 255, 255)
                     debugOut = cv2.drawContours(debugOut, [box], 0, color, 1)
   
     return final_mask
