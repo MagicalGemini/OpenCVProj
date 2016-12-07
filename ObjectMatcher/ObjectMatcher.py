@@ -20,7 +20,7 @@ import StringIO
 
 MIN_MATCH_COUNT = 10
 MIN_KEYPOINT_NUM = 1000
-OUTPUT_DEBUG = True
+OUTPUT_DEBUG = False
                 
 def match_sample():
     img1 = cv2.imread('../res/object.png', cv2.IMREAD_GRAYSCALE)  # queryImage
@@ -31,10 +31,12 @@ def match_sample():
 
     # find the key points and descriptors with SIFT
     kp1, des1 = sift.detectAndCompute(img1, None)
-    computeKeypoints(img1)
+    #computeKeypoints(img1)
 
     kp2, des2 = sift.detectAndCompute(img2, None)
 
+    img1 = cv2.drawKeypoints()(img1, kp1, color=(0,255,0), flags=0)
+    cv2.imshow("img", img1)
     # FLANN parameters
     FLANN_INDEX_KDTREE = 0
     index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
@@ -153,8 +155,8 @@ def matchFromSerialData(newImg, serialData):
     else:
         print(0)
     
-
 if __name__ == '__main__':
+
     if len(sys.argv) < 2:
         print("CMD:  compute binaryData")
         print("CMD:  match serialData newBinaryData")
@@ -169,7 +171,7 @@ if __name__ == '__main__':
         outStrIO.seek(0)
 
         if OUTPUT_DEBUG:
-            f = open("data.txt", "r")
+            f = open("data.txt", "rb")
             data = f.read()
             f.close()
             inStrIO.write(data)
@@ -194,7 +196,13 @@ if __name__ == '__main__':
         imgDeBase64IO = StringIO.StringIO()
         imgDeBase64IO.seek(0)
 
-        serialDataStrIO.write(sys.argv[2])
+        if OUTPUT_DEBUG:
+            f = open("Keypoints", "rb")
+            data = f.read()
+            f.close()
+            serialDataStrIO.write(data)
+        else:
+            serialDataStrIO.write(sys.argv[2])
         base64.decode(serialDataStrIO, serialDeBase64StrIO)
 
         imgDataIO.write(sys.argv[3])
@@ -203,4 +211,4 @@ if __name__ == '__main__':
         img = create_opencv_image_from_stringio(imgDeBase64IO)
         
         matchFromSerialData(img, serialDeBase64StrIO.getvalue())
-
+        
