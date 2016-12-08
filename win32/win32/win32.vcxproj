@@ -86,12 +86,14 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_VARIADIC_MAX=10;__OPENCV_BUILD=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>E:\toolkit\opencv\modules\flann\include;E:\toolkit\opencv\modules\imgproc\include;E:\toolkit\opencv\include;E:\toolkit\opencv\build;E:\toolkit\opencv\modules\imgcodecs\include;E:\toolkit\opencv\modules\core\include;E:\toolkit\opencv_contrib\modules\xfeatures2d\include;E:\toolkit\opencv\modules\calib3d\include;E:\toolkit\opencv\modules\features2d\include;E:\toolkit\opencv\modules\highgui\include;E:\toolkit\opencv\modules\videoio\include;E:\toolkit\opencv\modules\ml\include;E:\toolkit\opencv\modules\objdetect\include;E:\toolkit\opencv\modules\photo\include;E:\toolkit\opencv\modules\shape\include;E:\toolkit\opencv\modules\stitching\include;E:\toolkit\opencv\modules\superres\include;E:\toolkit\opencv\modules\video\include;E:\toolkit\opencv\modules\videostab\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>E:\toolkit\opencv\build\lib\Release\opencv_xfeatures2d310.lib;E:\toolkit\opencv\build\lib\Release\opencv_imgcodecs310.lib;E:\toolkit\opencv\build\lib\Release\opencv_core310.lib;E:\toolkit\opencv\build\lib\Release\opencv_flann310.lib;E:\toolkit\opencv\build\lib\Release\opencv_imgproc310.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -114,14 +116,18 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_VARIADIC_MAX=10;__OPENCV_BUILD=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>E:\toolkit\opencv\modules\flann\include;E:\toolkit\opencv\modules\imgproc\include;E:\toolkit\opencv\include;E:\toolkit\opencv\build;E:\toolkit\opencv\modules\imgcodecs\include;E:\toolkit\opencv\modules\core\include;E:\toolkit\opencv_contrib\modules\xfeatures2d\include;E:\toolkit\opencv\modules\calib3d\include;E:\toolkit\opencv\modules\features2d\include;E:\toolkit\opencv\modules\highgui\include;E:\toolkit\opencv\modules\videoio\include;E:\toolkit\opencv\modules\ml\include;E:\toolkit\opencv\modules\objdetect\include;E:\toolkit\opencv\modules\photo\include;E:\toolkit\opencv\modules\shape\include;E:\toolkit\opencv\modules\stitching\include;E:\toolkit\opencv\modules\superres\include;E:\toolkit\opencv\modules\video\include;E:\toolkit\opencv\modules\videostab\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>E:\toolkit\opencv\build\lib\Release\opencv_xfeatures2d310.lib;E:\toolkit\opencv\build\lib\Release\opencv_imgcodecs310.lib;E:\toolkit\opencv\build\lib\Release\opencv_core310.lib;E:\toolkit\opencv\build\lib\Release\opencv_flann310.lib;E:\toolkit\opencv\build\lib\Release\opencv_imgproc310.lib;E:\toolkit\opencv\build\3rdparty\lib\Release\zlib.lib;E:\toolkit\opencv\build\lib\Release\opencv_features2d310.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>atlthunk.lib;msvcrt.lib;msvcrtd.lib;libcmtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -145,6 +151,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="objMatcher.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
@@ -155,7 +162,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="win32.cpp" />
+    <ClCompile Include="objMatcher.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
