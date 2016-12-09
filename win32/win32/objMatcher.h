@@ -8,11 +8,11 @@
 using namespace cv;
 using namespace xfeatures2d;
 
-std::string& detectKeyPoints(Mat& img);
+std::string detectKeyPoints(char* buffer, int bufferSize);
 
-int objMatchWithSerialData(Mat& newImg, std::string& serialData);
+int objMatchWithSerialData(char* imgBuffer, int imgBufferSize, char* serialBuffer, int serialBufferSize);
 
-const char* saveKeyPoints(std::vector<KeyPoint>& kps, Mat& descriptors);
+std::string saveKeyPoints(std::vector<KeyPoint>& kps, Mat& descriptors);
 
 void loadKeyPoints(std::string& buff, std::vector<KeyPoint>& kps, Mat& descriptors);
 

@@ -89,11 +89,12 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_VARIADIC_MAX=10;__OPENCV_BUILD=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>E:\toolkit\opencv\modules\flann\include;E:\toolkit\opencv\modules\imgproc\include;E:\toolkit\opencv\include;E:\toolkit\opencv\build;E:\toolkit\opencv\modules\imgcodecs\include;E:\toolkit\opencv\modules\core\include;E:\toolkit\opencv_contrib\modules\xfeatures2d\include;E:\toolkit\opencv\modules\calib3d\include;E:\toolkit\opencv\modules\features2d\include;E:\toolkit\opencv\modules\highgui\include;E:\toolkit\opencv\modules\videoio\include;E:\toolkit\opencv\modules\ml\include;E:\toolkit\opencv\modules\objdetect\include;E:\toolkit\opencv\modules\photo\include;E:\toolkit\opencv\modules\shape\include;E:\toolkit\opencv\modules\stitching\include;E:\toolkit\opencv\modules\superres\include;E:\toolkit\opencv\modules\video\include;E:\toolkit\opencv\modules\videostab\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>E:\toolkit\opencv\build\lib\Release\opencv_xfeatures2d310.lib;E:\toolkit\opencv\build\lib\Release\opencv_imgcodecs310.lib;E:\toolkit\opencv\build\lib\Release\opencv_core310.lib;E:\toolkit\opencv\build\lib\Release\opencv_flann310.lib;E:\toolkit\opencv\build\lib\Release\opencv_imgproc310.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>E:\toolkit\opencv\build\lib\Debug\opencv_xfeatures2d310d.lib;E:\toolkit\opencv\build\lib\Debug\opencv_imgcodecs310d.lib;E:\toolkit\opencv\build\lib\Debug\opencv_core310d.lib;E:\toolkit\opencv\build\lib\Debug\opencv_flann310d.lib;E:\toolkit\opencv\build\lib\Debug\opencv_imgproc310d.lib;E:\toolkit\opencv\build\3rdparty\lib\Debug\zlibd.lib;E:\toolkit\opencv\build\lib\Debug\opencv_features2d310d.lib;E:\toolkit\opencv\build\3rdparty\lib\Debug\libjpegd.lib;E:\toolkit\opencv\build\3rdparty\lib\Debug\libpngd.lib;E:\toolkit\opencv\build\3rdparty\lib\Debug\libwebpd.lib;E:\toolkit\opencv\build\3rdparty\lib\Debug\libtiffd.lib;E:\toolkit\opencv\build\3rdparty\lib\Debug\IlmImfd.lib;E:\toolkit\opencv\build\3rdparty\lib\Debug\libjasperd.lib;E:\toolkit\opencv\build\lib\Debug\opencv_highgui310d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -126,7 +127,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>E:\toolkit\opencv\build\lib\Release\opencv_xfeatures2d310.lib;E:\toolkit\opencv\build\lib\Release\opencv_imgcodecs310.lib;E:\toolkit\opencv\build\lib\Release\opencv_core310.lib;E:\toolkit\opencv\build\lib\Release\opencv_flann310.lib;E:\toolkit\opencv\build\lib\Release\opencv_imgproc310.lib;E:\toolkit\opencv\build\3rdparty\lib\Release\zlib.lib;E:\toolkit\opencv\build\lib\Release\opencv_features2d310.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>E:\toolkit\opencv\build\lib\Release\opencv_xfeatures2d310.lib;E:\toolkit\opencv\build\lib\Release\opencv_imgcodecs310.lib;E:\toolkit\opencv\build\lib\Release\opencv_core310.lib;E:\toolkit\opencv\build\lib\Release\opencv_flann310.lib;E:\toolkit\opencv\build\lib\Release\opencv_imgproc310.lib;E:\toolkit\opencv\build\3rdparty\lib\Release\zlib.lib;E:\toolkit\opencv\build\lib\Release\opencv_features2d310.lib;E:\toolkit\opencv\build\3rdparty\lib\Release\libjpeg.lib;E:\toolkit\opencv\build\3rdparty\lib\Release\libpng.lib;E:\toolkit\opencv\build\3rdparty\lib\Release\libwebp.lib;E:\toolkit\opencv\build\3rdparty\lib\Release\libtiff.lib;E:\toolkit\opencv\build\3rdparty\lib\Release\IlmImf.lib;E:\toolkit\opencv\build\3rdparty\lib\Release\libjasper.lib;E:\toolkit\opencv\build\lib\Release\opencv_highgui310.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>atlthunk.lib;msvcrt.lib;msvcrtd.lib;libcmtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
