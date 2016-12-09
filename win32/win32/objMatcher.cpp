@@ -1,10 +1,7 @@
-#include "stdafx.h"
 #include"objMatcher.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 #define SERIAL2FILE 0
-#define ENABLE_TEST 1
+#define ENABLE_TEST 0
 
 #define MIN_KEYPOINT_NUM 1000
 #define MIN_MATCH_POINT_NUM 20
