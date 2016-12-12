@@ -1,11 +1,24 @@
 #ifndef __OBJ_MATCHER_H__
 #define __OBJ_MATCHER_H__
 
+#define COMPILE_AS_STATIC_LIB 0
 
 #ifdef WIN32
-#define EXPORT_DLL __declspec(dllexport)
+
+	#if COMPILE_AS_STATIC_LIB
+
+	#define EXPORT_DLL
+
+	#else
+
+	#define EXPORT_DLL __declspec(dllexport)
+
+	#endif
+
 #else
+
 #define EXPORT_DLL
+
 #endif
 
 #ifdef __cplusplus
@@ -22,4 +35,3 @@ extern "C"
 #endif
 
 #endif//__OBJ_MATCHER_H__
-
