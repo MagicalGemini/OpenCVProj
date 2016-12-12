@@ -13,12 +13,14 @@
 using namespace cv;
 using namespace xfeatures2d;
 
-std::string detectKeyPoints(char* buffer, int bufferSize);
+#ifdef WIN32
+#define EXPORT_DLL extern "C" __declspec(dllexport)
+#else
+#define EXPORT_DLL
+#endif
 
-int objMatchWithSerialData(char* imgBuffer, int imgBufferSize, char* serialBuffer, int serialBufferSize);
+EXPORT_DLL std::string detectKeyPoints(char* buffer, int bufferSize);
 
-std::string saveKeyPoints(std::vector<KeyPoint>& kps, Mat& descriptors);
-
-void loadKeyPoints(std::string& buff, std::vector<KeyPoint>& kps, Mat& descriptors);
+EXPORT_DLL int objMatchWithSerialData(char* imgBuffer, int imgBufferSize, char* serialBuffer, int serialBufferSize);
 
 #endif//__OBJ_MATCHER_H__

@@ -7,6 +7,9 @@
 #define MIN_MATCH_POINT_NUM 20
 
 
+std::string saveKeyPoints(std::vector<KeyPoint>& kps, Mat& descriptors);
+void loadKeyPoints(std::string& buff, std::vector<KeyPoint>& kps, Mat& descriptors);
+
 std::string detectKeyPoints(char* buffer, int bufferSize)
 {
 	Mat rawData(1, bufferSize, CV_8UC1, buffer);
