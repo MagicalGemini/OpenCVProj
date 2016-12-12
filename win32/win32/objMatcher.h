@@ -10,17 +10,27 @@
 #include<opencv2/flann.hpp>
 #include<opencv2/xfeatures2d.hpp>
 
-using namespace cv;
-using namespace xfeatures2d;
-
 #ifdef WIN32
-#define EXPORT_DLL extern "C" __declspec(dllexport)
+#define EXPORT_DLL __declspec(dllexport)
 #else
 #define EXPORT_DLL
 #endif
 
-EXPORT_DLL std::string detectKeyPoints(char* buffer, int bufferSize);
+#ifdef __cplusplus
+extern "C" 
+{
+#endif
 
-EXPORT_DLL int objMatchWithSerialData(char* imgBuffer, int imgBufferSize, char* serialBuffer, int serialBufferSize);
+	using namespace cv;
+	using namespace xfeatures2d;
+
+	EXPORT_DLL std::string detectKeyPoints(char* buffer, int bufferSize);
+
+	EXPORT_DLL int objMatchWithSerialData(char* imgBuffer, int imgBufferSize, char* serialBuffer, int serialBufferSize);
+
+#ifdef __cplusplus
+}//__cplusplus
+#endif
 
 #endif//__OBJ_MATCHER_H__
+

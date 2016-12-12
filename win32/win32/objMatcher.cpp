@@ -3,7 +3,7 @@
 #define SERIAL2FILE 0
 #define ENABLE_TEST 0
 
-#define MIN_KEYPOINT_NUM 1000
+#define MIN_KEYPOINT_NUM 500
 #define MIN_MATCH_POINT_NUM 20
 
 
@@ -30,6 +30,8 @@ std::string detectKeyPoints(char* buffer, int bufferSize)
 		retData.append("1|");
 		retData.append(saveKeyPoints(keypointsVec, descriptors));
 	}
+
+	retData.append("\n\0");
 
 	return retData;
 }
