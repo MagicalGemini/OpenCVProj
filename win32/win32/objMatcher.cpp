@@ -1,16 +1,27 @@
 #include"objMatcher.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+
+#include<opencv2/core.hpp>
+#include<opencv2/imgcodecs.hpp>
+#include<opencv2/features2d.hpp>
+#include<opencv2/flann.hpp>
+#include<opencv2/xfeatures2d.hpp>
+
 #define SERIAL2FILE 0
 #define ENABLE_TEST 0
 
 #define MIN_KEYPOINT_NUM 500
 #define MIN_MATCH_POINT_NUM 20
 
+using namespace cv;
+using namespace xfeatures2d;
 
 std::string saveKeyPoints(std::vector<KeyPoint>& kps, Mat& descriptors);
 void loadKeyPoints(std::string& buff, std::vector<KeyPoint>& kps, Mat& descriptors);
 
-std::string detectKeyPoints(char* buffer, int bufferSize)
+const char* detectKeyPoints(char* buffer, int bufferSize)
 {
 	Mat rawData(1, bufferSize, CV_8UC1, buffer);
 	Mat img = imdecode(rawData, IMREAD_GRAYSCALE);
@@ -33,7 +44,7 @@ std::string detectKeyPoints(char* buffer, int bufferSize)
 
 	retData.append("\n\0");
 
-	return retData;
+	return retData.c_str();
 }
 
 int objMatchWithSerialData(char* imgBuffer, int imgBufferSize, char* serialBuffer, int serialBufferSize)
