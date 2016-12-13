@@ -1,7 +1,6 @@
 #include"objMatcher.h"
 
 #include <stdio.h>
-#include <stdlib.h>
 
 #include<opencv2/core.hpp>
 #include<opencv2/imgcodecs.hpp>
@@ -31,7 +30,11 @@ const char* detectKeyPoints(char* buffer, int bufferSize)
 	std::string retData;
 	if (keypointsVec.size() < MIN_KEYPOINT_NUM)
 	{
-		retData.append("0|not enough key points");
+		retData.append("0 | not enough key points: ");
+
+		char buf[16] = { 0 };
+		sprintf(buf, "%d", keypointsVec.size());
+		retData.append(buf);
 	}
 	else
 	{
@@ -42,9 +45,11 @@ const char* detectKeyPoints(char* buffer, int bufferSize)
 		retData.append(saveKeyPoints(keypointsVec, descriptors));
 	}
 
-	retData.append("\n\0");
-
-	return retData.c_str();
+	const char* strData = retData.c_str();
+	char* data = (char*)malloc(strlen(strData) + 1);
+	strcpy(data, strData);
+	//char* data = new char[holdSize];
+	return data;
 }
 
 int objMatchWithSerialData(char* imgBuffer, int imgBufferSize, char* serialBuffer, int serialBufferSize)
