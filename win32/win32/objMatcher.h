@@ -26,7 +26,7 @@ extern "C"
 {
 #endif
 
-	EXPORT_DLL const char* detectKeyPoints(char* buffer, int bufferSize);
+	EXPORT_DLL const char* detectKeyPoints(char* buffer, int bufferSize/*, int algorithm*/);
 
 	EXPORT_DLL int objMatchWithSerialData(char* imgBuffer, int imgBufferSize, char* serialBuffer, int serialBufferSize);
 

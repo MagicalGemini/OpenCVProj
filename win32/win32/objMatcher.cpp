@@ -20,14 +20,26 @@ using namespace xfeatures2d;
 std::string saveKeyPoints(std::vector<KeyPoint>& kps, Mat& descriptors);
 void loadKeyPoints(std::string& buff, std::vector<KeyPoint>& kps, Mat& descriptors);
 
-const char* detectKeyPoints(char* buffer, int bufferSize)
+const char* detectKeyPoints(char* buffer, int bufferSize/*, int algorithm*/)
 {
 	Mat rawData(1, bufferSize, CV_8UC1, buffer);
 	Mat img = imdecode(rawData, IMREAD_GRAYSCALE);
-	Ptr<SIFT> detector = SIFT::create();
+
+	Ptr<Feature2D> detector;
+
+	//if (algorithm == 2)
+	//{
+	//	detector = SIFT::create();
+	//}
+	//else
+	{
+		detector = ORB::create();
+	}
+
 	std::vector<KeyPoint> keypointsVec;
 	detector->detect(img, keypointsVec);
 	std::string retData;
+
 	if (keypointsVec.size() < MIN_KEYPOINT_NUM)
 	{
 		retData.append("0 | not enough key points: ");
@@ -48,7 +60,6 @@ const char* detectKeyPoints(char* buffer, int bufferSize)
 	const char* strData = retData.c_str();
 	char* data = (char*)malloc(strlen(strData) + 1);
 	strcpy(data, strData);
-	//char* data = new char[holdSize];
 	return data;
 }
 
