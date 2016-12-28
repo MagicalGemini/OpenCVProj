@@ -4,6 +4,10 @@
 Created on 2016.12.28
 
 @author: FengHao
+
+http://jingyan.baidu.com/article/20b68a88be3263796cec62d0.html
+http://stackoverflow.com/questions/20670761/letter-inside-letter-pattern-recognition
+https://www.learnopencv.com/filling-holes-in-an-image-using-opencv-python-c/
 '''
 
 import cv2
@@ -11,75 +15,47 @@ import numpy as np
 
 if __name__ == '__main__':
     
-    imgRGBA = cv2.imread("3.jpg")
-    cv2.imshow("imgRGBA", imgRGBA)
+    ImgSRC = cv2.imread("3.jpg")
+    imgRGBA = ImgSRC.copy()
     
     imgGray = cv2.cvtColor(imgRGBA, cv2.COLOR_RGB2GRAY)
+    imgBlur = cv2.blur(imgGray, (5, 5))
+
+    _, imgThresh = cv2.threshold(imgBlur, 128, 255, cv2.THRESH_BINARY_INV)
     
-    _, imgThresh = cv2.threshold(imgGray, 128, 255, cv2.THRESH_BINARY)
-    cv2.imshow("imgThresh", imgThresh)
+    element = cv2.getStructuringElement(cv2.MORPH_RECT, (17, 3))
+    mor = cv2.morphologyEx(imgThresh, cv2.MORPH_CLOSE, element)
     
+    _, contours, _ = cv2.findContours(mor, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     
-#     imgBlur = cv2.blur(imgGray, (3, 3))
-#     noise_removal = cv2.bilateralFilter(imgGray, 5, 50, 50)
-#     
-#     edges = cv2.Canny(noise_removal, 50, 150, apertureSize=3)
-#     _, contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-# 
-#     cv2.drawContours(imgRGBA, contours, -1, (0, 255, 0), 3)
-#     cv2.imshow("imgRGBA", imgRGBA)
-#     print("contours size = ", len(contours))
-#     mskH = imgRGBA.shape[0] + 2
-#     mskW = imgRGBA.shape[1] + 2
-#     final_mask = np.zeros((mskH, mskW), np.uint8)
-#     
-#     for cnt in contours:
-#         rect = cv2.minAreaRect(cnt)
-# 
-#         center = (int(rect[0][0]), int(rect[0][1]))
+    print("contours size = ", len(contours))
+    
+#     mskH = ImgSRC.shape[0] + 2
+#     mskW = ImgSRC.shape[1] + 2
+#     mask = np.zeros((mskH, mskW), np.uint8)
+    for cnt in contours:
+        rect = cv2.minAreaRect(cnt)
 #         w = rect[1][0]
 #         h = rect[1][0]
-#                 
-#         minsize = int(min(w, h))
-#         minsize = int(minsize * 0.5)
-#         if minsize == 0:
-#             minsize = 1
-#             
-#         mask = np.zeros((mskH, mskW), np.uint8)
-#          
-#         lodiff = 50
-#         updiff = 50
+#         center = (int(rect[0][0]), int(rect[0][1]))
+#         start = (int(rect[0][0] - h / 2), int(rect[0][1] - w / 2))
+#         
+        box = cv2.boxPoints(rect)
+        box = np.int0(box)
+#         
+#         lodiff = 80
+#         updiff = 80
 #         connectivity = 8
 #         newMaskVal = 255
-#         numSeeds = 10
 #         flags = connectivity | cv2.FLOODFILL_MASK_ONLY | cv2.FLOODFILL_FIXED_RANGE | (newMaskVal << 8)
-#         for i in range(numSeeds):
-#             x = center[0] + np.random.randint(1000) % minsize - int(minsize / 2)
-#             y = center[1] + np.random.randint(1000) % minsize - int(minsize / 2)
-#             seed = (x, y)
-#                  
-#             try:
-#                 cv2.floodFill(imgRGBA.copy(), mask, seed, (255, 0, 0), (lodiff, lodiff, lodiff), (updiff, updiff, updiff), flags)
-#             except:
-#                 pass
-#          
-#             cons = np.argwhere(mask.transpose() == 255)
-#             rt = cv2.minAreaRect(cons)
-#             bx = cv2.boxPoints(rt)
-#             bx = np.int0(bx)
-#             
-#             cv2.drawContours(final_mask, [bx], 0, 255, -1)
-#     
-#     final_mask = cv2.resize(final_mask, (imgRGBA.shape[1], imgRGBA.shape[0]))
-#     h, w = imgRGBA.shape[:2]
-#     imgA8 = np.full((h, w, 1), 255, np.uint8)
-#     imgA8 = cv2.bitwise_and(imgA8, imgA8, mask=final_mask)
-#     
-#     contoursImg = cv2.bitwise_and(imgRGBA, imgRGBA, mask=final_mask)
-#     b, g, r = cv2.split(contoursImg)
-#     bgra = [b, g, r, imgA8]
-#     finalImg = cv2.merge(bgra, 4)
-#     
-#     cv2.imshow("finalImg", finalImg)
+#         
+#         cv2.circle(imgRGBA, center, 1, (0, 0, 255), 3)
+#         cv2.floodFill(imgRGBA, mask, center, 255);
+#         cv2.floodFill(imgRGBA, mask, center, 255, (lodiff, lodiff, lodiff), (updiff, updiff, updiff), flags);
+        cv2.drawContours(imgRGBA, [box], -1, (255, 0, 0), 2)
+    
+            
+    cv2.imshow("imgRGBA", imgRGBA)
     cv2.waitKey()
+    cv2.destroyAllWindows()
         
